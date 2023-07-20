@@ -67,7 +67,7 @@ const DbData = () => {
     {message && message.map((i) =>{
       return (
       <ul>
-      <li>{i.collectionName}</li>
+      <li>{i.dbName}</li>
       </ul>
       )
     })}

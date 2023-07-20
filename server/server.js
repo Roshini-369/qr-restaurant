@@ -1,62 +1,28 @@
 const express = require("express");
-//const mongodb = require('mongodb');
-const {MongoClient} = require('mongodb');
+//const mongodb = require('./mongodb');
+const conn = require('./conn')
+//const {MongoClient} = require('mongodb');
 
 const cors = require("cors");
-const assert = require('assert');
+//const assert = require('assert');
 const app = express();
 
-
-async function main(){
-  /**
-   * Connection URI. Update <username>, <password>, and <your-cluster-url> to reflect your cluster.
-   * See https://docs.mongodb.com/ecosystem/drivers/node/ for more details
-   */
-  const uri = "mongodb://localhost:27017";
-
-
-  const client = new MongoClient(uri);
-
-  try {
-      // Connect to the MongoDB cluster
-      await client.connect();
-
-      // Make the appropriate DB calls
-      await  listDatabases(client);
-      //Fetch one record from a db
-      await findOneListingByName(client, "Avengers: Endgame");
-           console.log("Connection successful!!!");
-
-        
-  } catch (e) {
-      console.error(e);
-  } finally {
-      await client.close();
-  }
+//const uri = "mongodb://localhost:27017";
+//const client = new MongoClient(uri);
+async function listDbs(){
+ // try{
+    //conn.dbData.db().admin().listDatabases();
+   var dbLists = await conn.db().admin().listDatabases();
+    console.log("dbLIsts",dbLists);
+    console.log("Databases");
+    dbLists.databases.forEach(db => console.log(`- ${db.name}`))
+    return dbLists.databases;
+ // }catch(err){
+  //  console.log(err)
+ // }
+  
 }
 
-main().catch(console.error);
-
-async function listDatabases(client){
-  databasesList = await client.db().admin().listDatabases();
-
-  console.log("Databases:");
-  databasesList.databases.forEach(db => {console.log(` - ${db.name}`);});
-
-  return databasesList.databases;
-};
-
-async function findOneListingByName(client, nameOfListing) {
-  const result = await client.db("moviedb").collection("movies").findOne({ name: nameOfListing });
-
-  if (result) {
-      console.log(`Found a listing in the collection with the name '${nameOfListing}':`);
-      console.log(result);
-      return result;
-  } else {
-      console.log(`No listings found with the name '${nameOfListing}'`);
-  }
-}
 
 app.use(cors());
 app.use(express.json());
@@ -68,7 +34,17 @@ app.listen(8000, () => {
 
 app.get('/', (req, res) => res.send('Hello World!'));
 
-app.get("/message",async (req, res) => {
+app.get('/message',async(req,res) => {
+  var dbLst = await listDbs();
+  //conn.connect;
+  //conn.db('moviedb').collection('characters');
+  var dbNames=[];
+  dbLst.forEach(db => {dbNames.push({dbName:db.name})})
+  console.log("you are in",dbNames);
+  res.json({message:"Database lists", data: dbNames})
+})
+
+/* app.get("/message",async (req, res) => {
   const uri = "mongodb://localhost:27017";
   const client = new MongoClient(uri); 
      
@@ -76,7 +52,7 @@ app.get("/message",async (req, res) => {
   var dbList = await client.db().admin().listDatabases();
     var tf = [];
     dbList.databases.forEach(db =>{
-      tf.push({collectionName:db.name});
+      tf.push(db.name);
     })
        // const result =  await findOneListingByName(client, "The Godfather");
       //  const result = await client.db("moviedb").collection("movies").findOne({ name: "Avengers: Endgame" });
@@ -84,15 +60,14 @@ app.get("/message",async (req, res) => {
   var lists = await client.db("game-of-thrones").collection("characters").find({}).toArray();
   var tt=[];
   lists.forEach(lst => {
-     tt.push(lst.name);
+     tt.push({characterName:lst.name});
   })
   //res.json({message:"passing db lists", data: tf})
-  res.json({message:"list of databases", data: tf})
+  res.json({message:"passing game-of-thrones characters", data: tt})
 
             //res.status(200).send("hello from message")
-            /* const test = await main();
-            res.send(test) */
-  });  
+            
+  });   */
 
 // This variable is populated in the findDocuments function (see below "Using Mongo")
 //var mongoDocsToDisplay = null;
