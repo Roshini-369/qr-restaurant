@@ -57,7 +57,7 @@ const InsertCharacters = () => {
             value={name}
             onChange={(e) => setCName(e.target.value)}
           />
-          <button type="submit">Submit</button>
+          <button type="submit" class="btn btn-outline-success me-2">Submit</button>
         </form>
      
     );

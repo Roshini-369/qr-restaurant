@@ -1,15 +1,17 @@
 const express = require("express");
-//const mongodb = require('./mongodb');
-const conn = require('./conn')
-//const {MongoClient} = require('mongodb');
-
 const cors = require("cors");
 //const assert = require('assert');
 const app = express();
+//const mongodb = require('./mongodb');
+//const conn = require('./conn')
+//const {MongoClient} = require('mongodb');
+const lstDbs = require('./routes/listDb.js');
+const chrLists = require('./routes/characters.js');
+const conn = require('./conn.js');
 
 //const uri = "mongodb://localhost:27017";
 //const client = new MongoClient(uri);
-async function listDbs(){
+/*async function listDbs(){
  // try{
     //conn.dbData.db().admin().listDatabases();
    var dbLists = await conn.db().admin().listDatabases();
@@ -21,7 +23,7 @@ async function listDbs(){
   //  console.log(err)
  // }
   
-}
+}*/
 
 
 app.use(cors());
@@ -29,12 +31,33 @@ app.use(express.json());
 
 app.listen(8000, () => {
   console.log(`Server is running on port 8000.`);
-  //console.log("mongod docs to display", mongoDocsToDisplay);
 });
 
 app.get('/', (req, res) => res.send('Hello World!'));
 
-app.get('/message',async(req,res) => {
+app.get('/api/getDbLists',async(req,res) => {  
+  res.json({message:"Database lists", data: await lstDbs()});
+})
+
+app.get('/api/getCharacters',async(req,res) => {  
+  res.json({message:"Characters Lists", data: await chrLists()});
+})
+
+app.post('/api/insertCharacters',async(req, res) => {
+  const dataInsert = req.body;
+    const result = await conn.db('test').collection('characters').insertOne(dataInsert);
+
+   // res.json({ message: 'User added successfully', insertedId: result.insertedId });
+ // } catch (error) {
+ //   console.error('Error:', error);
+ //   res.status(500).json({ message: 'Server Error' });
+ // }
+
+  res.json({ message: 'Data inserted successfully' });
+});
+
+
+/*app.get('/message',async(req,res) => {
   var dbLst = await listDbs();
   //conn.connect;
   //conn.db('moviedb').collection('characters');
@@ -42,7 +65,7 @@ app.get('/message',async(req,res) => {
   dbLst.forEach(db => {dbNames.push({dbName:db.name})})
   console.log("you are in",dbNames);
   res.json({message:"Database lists", data: dbNames})
-})
+})*/
 
 /* app.get("/message",async (req, res) => {
   const uri = "mongodb://localhost:27017";
