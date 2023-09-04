@@ -8,6 +8,7 @@ import Home from "./pages/home";
 //import NoPage from "./pages/NoPage";
 import './App.css';
 import AddData from "./pages/addData";
+import Services from "./pages/services";
 
 
  /* function getdbList(){
@@ -39,11 +40,13 @@ function App() {
   }, []);  */
   return (
     <BrowserRouter>
+    <Layout/>
     <Routes>
-      <Route path="/" element={<Layout />}>
-        <Route index element={<Home />} />
+     {/*  <Route path="/" element={<Layout />}> */}
+        <Route path="/" element={<Home />} />
         <Route path="addData" element={<AddData />} />
-      </Route>
+        <Route path="services" element={<Services />} />
+      {/* </Route> */}
     </Routes>
   </BrowserRouter>
   );
