@@ -22,16 +22,9 @@ const Characterlists = () => {
       <div class="card-body" style={{width:'250px'}}>
       {message && message.data.map((i) =>{
         return (
-       
-        
-       
-
   <ul class="list-group list-group-flush">
-   
         <li class="list-group-item" style={{ color: '#6d3879', borderBottom:'1px solid red' }} key={i._id}>{i.name}</li>
-       
-  </ul>
-        
+  </ul>   
         )
       })}
       </div>
