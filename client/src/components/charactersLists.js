@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from "react";
 
 const Characterlists = () => {
-    const [message, setMessage] = useState(null);
-  
+    const [message, setMessage] = useState();
+    
      useEffect(() => {
-      fetch("http://localhost:8000/api/getCharacters")
+       fetch("/api/getCharacters")
         .then((res) => res.json())
         .then((res) => {
-          console.log("res",res)
+          //console.log("res",res)
           setMessage(res)
         })
-    }, []);
+    }, [message]);
     return(
       <>
       <h3>Message from Characters : {message && message.message}</h3>
