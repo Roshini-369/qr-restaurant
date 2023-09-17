@@ -1,5 +1,7 @@
 const express = require("express");
 const cors = require("cors");
+const {ObjectId} = require('mongodb');
+
 //const assert = require('assert');
 const app = express();
 //const mongodb = require('./mongodb');
@@ -54,6 +56,12 @@ app.post('/api/insertCharacters',async(req, res) => {
  // }
 
   res.json({ message: 'Data inserted successfully' });
+});
+
+app.delete('/api/deleteCharacters/:id',async(req, res) => {
+  const dataDelete = req.params;
+    const result = await conn.db('test').collection('characters').deleteOne({_id:new ObjectId(dataDelete.id)});
+  res.json({ message: 'Data deleted successfully' });
 });
 
 

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+//import charactersLists from "../components/charactersLists";
 
 const InsertCharacters = () => {
     const [name, setCName] = useState('')
@@ -8,7 +9,7 @@ const InsertCharacters = () => {
       
         const characters ={name};
         
-        fetch('http://localhost:8000/api/insertCharacters',{
+        await fetch('/api/insertCharacters',{
           method: 'POST',
           body: JSON.stringify(characters),
           headers: {
@@ -17,9 +18,10 @@ const InsertCharacters = () => {
         })
         .then((res) => res.json())
         .then((post) =>{
-          setCName('');
+         setCName('');
           console.log('Data inserted successfully',post);
         })
+        
         .catch((err) => {
            console.log(err.message)
         })
@@ -57,7 +59,7 @@ const InsertCharacters = () => {
             value={name}
             onChange={(e) => setCName(e.target.value)}
           />&nbsp;&nbsp;
-          <button type="submit" class="btn btn-outline-success me-2">Submit</button>
+          <button type="submit" className="btn btn-outline-success me-2">Submit</button>
         </form>
      
     );

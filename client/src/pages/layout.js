@@ -3,7 +3,11 @@ import { Link, NavLink } from "react-router-dom";
 import "./layout.css";
 
 const Layout = () => {
-  const [menuOpen, setMenuOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false);
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
+
   return (
     <>
    {/*  <nav class="navbar navbar-expand-lg bg-light">
@@ -29,7 +33,7 @@ const Layout = () => {
       </nav> */}
      <nav>
       <Link to="/" className="title">Website</Link>
-      <div 
+      {/*<div 
          className="menu" 
          onClick={() => {
           setMenuOpen(!menuOpen); 
@@ -37,7 +41,12 @@ const Layout = () => {
         <span></span>
         <span></span>
         <span></span>
-      </div>
+        </div>*/}
+         <div className="menu" onClick={toggleMenu}>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
      <ul className={menuOpen ? "open" : ""}>
            <li>
             <NavLink to="/" >Home</NavLink>
@@ -47,7 +56,7 @@ const Layout = () => {
           </li>
            <li>
             <NavLink to="/services">Services</NavLink>
-  </li>
+        </li>
         </ul>
      </nav>
 
