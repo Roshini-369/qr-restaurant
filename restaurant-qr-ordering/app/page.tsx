@@ -1,7 +1,10 @@
 'use client'
 import { useEffect, useState } from 'react'
 import supabase from '@/lib/supabaseClient'
-import { Switch } from '@headlessui/react'
+//import { Switch } from '@headlessui/react'
+import Link from 'next/link'
+import Header from '@/components/Header'
+
 
 type MenuItem = {
   id: number
@@ -11,14 +14,17 @@ type MenuItem = {
 }
 
 export default function Home() {
-  const [isTakeaway, setIsTakeaway] = useState(false)
+  const [isTakeaway, setIsTakeaway] = useState(true)
   const [menu, setMenu] = useState<MenuItem[]>([])
   const [selectedIds, setSelectedIds] = useState<number[]>([])
-  const [sessionId, setSessionId] = useState('')
+  //const [sessionId, setSessionId] = useState('')
+  // Initially: empty session
+  const [sessionId, setSessionId] = useState<string>('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [token, setToken] = useState<number | null>(null)
   const [orderConfirmed, setOrderConfirmed] = useState(false)
 
+  
 
   useEffect(() => {
     const fetchMenu = async () => {
@@ -34,7 +40,7 @@ export default function Home() {
     }
 
     fetchMenu()
-    generateSessionId()
+     generateSessionId()
   }, [])
 
   const toggleItem = (id: number) => {
@@ -54,6 +60,17 @@ export default function Home() {
     setIsSubmitting(true)
 
     try {
+       // Generate session ID only if not already set
+      //  if (!sessionId) {
+      //    const newId = `session-${Date.now()}-${Math.floor(Math.random() * 1000)}`
+      //    setSessionId(newId)
+      //  }
+       // Generate sessionId if not yet created
+        let currentSessionId = sessionId
+        if (!currentSessionId) {
+          currentSessionId = `session-${Date.now()}-${Math.floor(Math.random() * 1000)}`
+          setSessionId(currentSessionId)
+        }
       // Get the current max token
       const { data: maxTokenData, error: maxError } = await supabase
         .from('orders')
@@ -64,15 +81,16 @@ export default function Home() {
       if (maxError) throw maxError
 
       const newToken = maxTokenData?.[0]?.token ? maxTokenData[0].token + 1 : 1
+        console.time('confirmOrder')
 
-      const { error } = await supabase.from('orders').insert({
-        session_id: sessionId,
+      const { data, error } = await supabase.from('orders').insert({
+        session_id: currentSessionId,
         items: selectedItems.map(({ id, name, price }) => ({ id, name, price })),
         total: grandTotal,
         is_takeaway: isTakeaway,
         token: newToken,
       })
-
+      console.log("Supabase response:", data, error);
       if (error) throw error
 
       setToken(newToken)
@@ -87,17 +105,41 @@ export default function Home() {
   }
 
   return (
+    
     <div className="p-6 max-w-6xl mx-auto">
+      <Header/>
+        {/* Dashboard Button */}
+        {/* <div className="flex justify-end mb-4">
+          <Link href="/dashboard">
+            <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
+              Go to Dashboard
+            </button>
+          </Link>
+        </div> */}
       {/* Session ID Header */}
-      <div className="bg-white shadow-md p-4 rounded-xl mb-6">
-        <div className="text-sm text-gray-500 mb-1">Session ID</div>
-        <div className="font-mono text-sm text-blue-600">{sessionId}</div>
-        {token && (
-          <div className="mt-2 text-green-700 font-semibold">
-            ✅ Your Token Number: {token}
+      {/* <div className="bg-white shadow-md p-4 rounded-xl mb-6"> */}
+        {/* <div className="text-sm text-gray-500 mb-1">Session ID</div>
+        <div className="font-mono text-sm text-blue-600">{sessionId}</div> */}
+        {token !== null && (
+          <div className="bg-green-100 border border-green-400 text-green-800 px-4 py-3 rounded relative mt-4 shadow-md">
+            <strong className="font-bold">Order Confirmed!</strong>
+            <span className="block sm:inline ml-2">
+              Your token number is <span className="font-semibold">{token}</span>.
+            </span>
+            <button
+              onClick={() => {
+                setSelectedIds([])
+                setIsTakeaway(true)
+                setOrderConfirmed(false)
+                setToken(null)
+              }}
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+            >
+              Make Another Order
+            </button>
           </div>
-        )}
-      </div>
+)}
+      {/* </div> */}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Menu List */}
@@ -140,7 +182,34 @@ export default function Home() {
         <div className="bg-white shadow-md p-4 rounded-xl">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-semibold">Your Selection</h2>
-            <div className="flex items-center space-x-2">
+             <div className="flex items-center space-x-2">
+                {/* Dine-in Option */}
+                <label className="flex items-center space-x-1 text-sm text-gray-700">
+                  <input
+                    type="radio"
+                    name="orderType"
+                    value="dinein"
+                    checked={!isTakeaway}
+                    onChange={() => !orderConfirmed && setIsTakeaway(false)}
+                    disabled={orderConfirmed}
+                    className="accent-blue-600"
+                  />
+                  <span>Dine-in</span>
+                </label>
+                {/* Takeaway Option */}
+                <label className="flex items-center space-x-1 text-sm text-gray-700">
+                  <input
+                    type="radio"
+                    name="orderType"
+                    checked={isTakeaway}
+                    onChange={() => !orderConfirmed && setIsTakeaway(true)}
+                    disabled={orderConfirmed}
+                    className="accent-green-600"
+                  />
+                  <span>Takeaway</span>
+                </label>
+              </div>
+            {/* <div className="flex items-center space-x-2">
               <span className="text-sm text-gray-600">Dine-in</span>
               <Switch
                 checked={isTakeaway}
@@ -156,7 +225,17 @@ export default function Home() {
                 />
               </Switch>
               <span className="text-sm text-gray-600">Takeaway</span>
-            </div>
+            </div> */}
+             {/* <label className="flex items-center space-x-2 text-sm text-gray-700">
+              <input
+                type="checkbox"
+                checked={isTakeaway}
+                onChange={(e) => !orderConfirmed && setIsTakeaway(e.target.checked)}
+                disabled={orderConfirmed}
+                className="accent-green-600 w-4 h-4"
+              />
+              <span>Takeaway</span>
+            </label> */}
           </div>
 
           {selectedItems.length === 0 ? (
